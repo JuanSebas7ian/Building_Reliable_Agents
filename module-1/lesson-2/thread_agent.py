@@ -1,6 +1,12 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-from langsmith import traceable, uuid7
+from langsmith import traceable
+try:
+    from langsmith import uuid7
+except ImportError:
+    import uuid
+    def uuid7():
+        return uuid.uuid4()
 from langsmith.wrappers import wrap_openai
 
 load_dotenv()

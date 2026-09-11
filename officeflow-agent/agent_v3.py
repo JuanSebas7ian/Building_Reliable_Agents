@@ -7,7 +7,13 @@ from typing import List, Tuple
 import numpy as np
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from langsmith import traceable, uuid7
+from langsmith import traceable
+try:
+    from langsmith import uuid7
+except ImportError:
+    import uuid
+    def uuid7():
+        return uuid.uuid4()
 from langsmith.wrappers import wrap_openai
 
 load_dotenv()

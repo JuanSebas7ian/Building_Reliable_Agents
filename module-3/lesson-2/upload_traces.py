@@ -7,7 +7,13 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 load_dotenv()
 
-from langsmith import Client, uuid7
+from langsmith import Client
+try:
+    from langsmith import uuid7
+except ImportError:
+    import uuid
+    def uuid7():
+        return uuid.uuid4()
 from langsmith.run_trees import RunTree
 
 
