@@ -1,0 +1,19 @@
+flowchart TD
+    Inicio([Usuario envia pregunta]) --> NodoInit["1. Nodo Contexto<br/>(Recupera System Prompt + Memoria Thread)"]
+    NodoInit --> NodoLLM1["2. Nodo Razonamiento - LLM<br/>(Evalua pregunta frente a herramientas)"]
+    NodoLLM1 --> Decision{"Requiere herramientas?"}
+    Decision -- "SI (tool_calls detectado)" --> NodoTools["3. Nodo Ejecucion de Herramientas"]
+    
+    subgraph Herramientas ["Caja de Herramientas"]
+        NodoTools -->|Catalogo o Stock| ToolSQL["query_database<br/>(SQLite: inventory.db)"]
+        NodoTools -->|Politicas o Empresa| ToolRAG["search_knowledge_base<br/>(RAG: nomic-embed-text)"]
+    end
+    
+    ToolSQL --> NodoRetorno["4. Nodo Formateo de Resultados<br/>(Anade mensaje con role: tool)"]
+    ToolRAG --> NodoRetorno
+    NodoRetorno --> NodoLLM2["5. Nodo Sintesis - LLM<br/>(Lee los datos y redacta respuesta)"]
+    NodoLLM2 --> Decision2{"Requiere otra herramienta?"}
+    Decision2 -- "SI" --> NodoTools
+    Decision2 -- "NO" --> NodoFin["6. Nodo Respuesta<br/>(Guarda en memoria y muestra al usuario)"]
+    Decision -- "NO (charla general)" --> NodoFin
+    NodoFin --> Fin([Respuesta entregada al usuario])
