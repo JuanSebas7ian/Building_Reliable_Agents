@@ -18,8 +18,16 @@ from langsmith.wrappers import wrap_openai
 
 load_dotenv()
 
+BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
+CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen2.5:7b")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
+
 # Initialize clients
-client = wrap_openai(AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY")))
+client = wrap_openai(AsyncOpenAI(
+    base_url=BASE_URL,
+    api_key=API_KEY
+))
 
 # Configuration
 thread_id = str(uuid7())
@@ -157,7 +165,8 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
     import json
 
     kb_path = Path(kb_dir) / "documents"
-    cache_path = Path(kb_dir) / "embeddings" / "embeddings.json"
+    cache_file_name = f"embeddings_{EMBEDDING_MODEL.replace(':', '_')}.json" if "nomic" in EMBEDDING_MODEL else "embeddings.json"
+    cache_path = Path(kb_dir) / "embeddings" / cache_file_name
 
     # Try to load from cache first
     if cache_path.exists():
@@ -165,7 +174,7 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
             cache_data = json.load(f)
         knowledge_base_docs = [tuple(doc) for doc in cache_data["docs"]]
         knowledge_base_embeddings = cache_data["embeddings"]
-        print(f"Knowledge base loaded from cache: {len(knowledge_base_docs)} chunks")
+        print(f"Knowledge base loaded from cache ({cache_file_name}): {len(knowledge_base_docs)} chunks")
         return
 
     # Fall back to generating embeddings
@@ -189,11 +198,11 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
 
     knowledge_base_docs = chunks
 
-    print(f"Generating embeddings for {len(chunks)} chunks...")
+    print(f"Generating embeddings for {len(chunks)} chunks using '{EMBEDDING_MODEL}'...")
     embeddings = []
     for chunk_name, content in chunks:
         response = await client.embeddings.create(
-            model="text-embedding-3-small",
+            model=EMBEDDING_MODEL,
             input=content
         )
         embeddings.append(response.data[0].embedding)
@@ -209,7 +218,7 @@ async def search_knowledge_base(query: str, top_k: int = 2) -> str:
 
     # Generate embedding for query
     response = await client.embeddings.create(
-        model="text-embedding-3-small",
+        model=EMBEDDING_MODEL,
         input=query
     )
     query_embedding = response.data[0].embedding
@@ -276,7 +285,7 @@ async def chat(question: str) -> str:
 
     # First API call with tools
     response = await client.chat.completions.create(
-        model="gpt-5-nano",
+        model=CHAT_MODEL,
         messages=messages,
         tools=tools,
         tool_choice="auto"
@@ -330,7 +339,7 @@ async def chat(question: str) -> str:
 
         # Make next API call with tool results
         response = await client.chat.completions.create(
-            model="gpt-5-nano",
+            model=CHAT_MODEL,
             messages=messages,
             tools=tools,
             tool_choice="auto"
