@@ -12,8 +12,30 @@ from langsmith.wrappers import wrap_openai
 
 load_dotenv()
 
-# Initialize clients
-client = wrap_openai(AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY")))
+# ==============================================================================
+# [CONFIGURACIÓN EDUCATIVA: Soporte Dual OpenAI / Ollama Local]
+#
+# Original (Nube de OpenAI):
+#   client = wrap_openai(AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY")))
+#   model = "gpt-5-nano"
+#   embedding_model = "text-embedding-3-small"
+#
+# Adaptado para Ollama Local (GPU NVIDIA RTX 3060):
+#   Ollama expone un endpoint compatible con la API de OpenAI en http://localhost:11434/v1.
+#   Al pasar base_url="http://localhost:11434/v1", el SDK nativo de AsyncOpenAI se comunica
+#   directamente con los modelos locales (qwen2.5:7b y nomic-embed-text) a coste $0.
+#   ¡Y LangSmith wrap_openai sigue registrando todas las trazas exactamente igual!
+# ==============================================================================
+BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
+CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen2.5:7b")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
+
+# Initialize clients (funciona idéntico con OpenAI o con Ollama local)
+client = wrap_openai(AsyncOpenAI(
+    base_url=BASE_URL,
+    api_key=API_KEY
+))
 
 # Configuration
 thread_id = str(uuid7())
@@ -127,7 +149,12 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
     import json
 
     kb_path = Path(kb_dir) / "documents"
-    cache_path = Path(kb_dir) / "embeddings" / "embeddings.json"
+    # [CAMBIO EDUCATIVO: Caché independiente por modelo de embedding]
+    # OpenAI text-embedding-3-small genera vectores de dimensión 1536.
+    # Ollama nomic-embed-text genera vectores de dimensión 768.
+    # Guardamos en un archivo separado para no mezclar dimensiones de vectores.
+    cache_file_name = f"embeddings_{EMBEDDING_MODEL.replace(':', '_')}.json" if "nomic" in EMBEDDING_MODEL else "embeddings.json"
+    cache_path = Path(kb_dir) / "embeddings" / cache_file_name
 
     # Try to load from cache first
     if cache_path.exists():
@@ -135,7 +162,7 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
             cache_data = json.load(f)
         knowledge_base_docs = [tuple(doc) for doc in cache_data["docs"]]
         knowledge_base_embeddings = cache_data["embeddings"]
-        print(f"Knowledge base loaded from cache: {len(knowledge_base_docs)} chunks")
+        print(f"Knowledge base loaded from cache ({cache_file_name}): {len(knowledge_base_docs)} chunks")
         return
 
     # Fall back to generating embeddings
@@ -159,17 +186,22 @@ async def load_knowledge_base(kb_dir: str = "./knowledge_base") -> None:
 
     knowledge_base_docs = chunks
 
-    print(f"Generating embeddings for {len(chunks)} chunks...")
+    print(f"Generating embeddings for {len(chunks)} chunks using '{EMBEDDING_MODEL}'...")
     embeddings = []
     for chunk_name, content in chunks:
         response = await client.embeddings.create(
-            model="text-embedding-3-small",
+            model=EMBEDDING_MODEL,
             input=content
         )
         embeddings.append(response.data[0].embedding)
 
     knowledge_base_embeddings = embeddings
-    print(f"Knowledge base loaded: {len(chunks)} chunks indexed")
+    
+    # Guardar en caché para que las próximas ejecuciones no recalculen embeddings
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(cache_path, 'w') as f:
+        json.dump({"docs": chunks, "embeddings": embeddings}, f)
+    print(f"Knowledge base loaded: {len(chunks)} chunks indexed and cached to {cache_file_name}")
 
 @traceable(name="search_knowledge_base", run_type="tool")
 async def search_knowledge_base(query: str, top_k: int = 2) -> str:
@@ -177,9 +209,9 @@ async def search_knowledge_base(query: str, top_k: int = 2) -> str:
     if not knowledge_base_docs or not knowledge_base_embeddings:
         return "Error: Knowledge base not loaded"
 
-    # Generate embedding for query
+    # Generate embedding for query usando el modelo configurado
     response = await client.embeddings.create(
-        model="text-embedding-3-small",
+        model=EMBEDDING_MODEL,
         input=query
     )
     query_embedding = response.data[0].embedding
@@ -263,9 +295,9 @@ async def chat(question: str) -> str:
         {"role": "user", "content": question}
     ]
 
-    # First API call with tools
+    # First API call with tools (usa el modelo configurado en CHAT_MODEL)
     response = await client.chat.completions.create(
-        model="gpt-5-nano",
+        model=CHAT_MODEL,
         messages=messages,
         tools=tools,
         tool_choice="auto"
@@ -317,9 +349,9 @@ async def chat(question: str) -> str:
                 "content": result
             })
 
-        # Make next API call with tool results
+        # Make next API call with tool results (redacta la respuesta final usando CHAT_MODEL)
         response = await client.chat.completions.create(
-            model="gpt-5-nano",
+            model=CHAT_MODEL,
             messages=messages,
             tools=tools,
             tool_choice="auto"
