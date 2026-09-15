@@ -86,6 +86,11 @@ You have access to two powerful tools to help customers:
    - Product prices and pricing information
    - Product details and specifications
    - Searching for specific items in inventory
+   
+   CRITICAL SCHEMA INSTRUCTION: You DO NOT know the database schema upfront. ALWAYS discover it first:
+   - Check tables first: SELECT name FROM sqlite_master WHERE type='table'
+   - Check columns: PRAGMA table_info(items) and PRAGMA table_info(stock_levels)
+   - Then construct your query joining items and stock_levels to get product details and stock.
 
 2. search_knowledge_base - Use this for company policies and information:
    - Returns and refunds policies
