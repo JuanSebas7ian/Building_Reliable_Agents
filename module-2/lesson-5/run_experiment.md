@@ -1,50 +1,39 @@
 # Módulo 2 - Lección 5: `run_experiment.py` (Evaluación con LLM-as-a-Judge)
 
 ## 🎯 Propósito y Concepto Teórico
-Existen criterios de calidad que son casi imposibles de evaluar mediante simples reglas de código (expresiones regulares o asserts), tales como:
+Existen criterios de calidad subjetivos que son casi imposibles de evaluar mediante simples reglas de código (expresiones regulares o asserts), tales como:
 - ¿Fue la respuesta empática con un cliente frustrado?
-- ¿Explicó con claridad las condiciones de garantía?
-- ¿Siguió las directrices de tono corporativo?
+- ¿Explicó con claridad y sin rodeos las condiciones de garantía?
+- ¿Siguió las directrices de tono corporativo y amabilidad?
 
-Para estos casos, se utiliza la técnica **LLM-as-a-Judge** (el LLM como juez evaluador). En esta lección, el evaluador se configura y vincula directamente en la interfaz de **LangSmith**, de modo que cualquier experimento ejecutado contra ese dataset hereda y ejecuta automáticamente las evaluaciones cualitativas.
+Para estos casos, se utiliza la técnica **LLM-as-a-Judge** (el LLM como juez evaluador).
+
+En esta lección implementamos dos modalidades complementarias:
+1. **Juez en Código Local/Cloud ([`eval_llm_judge.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-5/eval_llm_judge.py))**: Ejecuta un LLM local (`qwen2.5:7b` en Ollama) o cloud (OpenAI) con una rúbrica en formato JSON estructurado sin costo adicional de API.
+2. **Juez Vinculado en la Nube (*Bound Evaluator*)**: Configurable desde la UI de LangSmith en la sección de evaluadores de datasets.
 
 ---
 
-## 🛠️ Explicación del Código
+## 🛠️ Arquitectura del Juez Local
 
-```python
-from langsmith import aevaluate
-from agent_v4 import chat, load_knowledge_base
-
-dataset_name = "officeflow-dataset"
-
-async def chat_wrapper(inputs: dict) -> dict:
-    """Adapta las entradas del dataset a la firma del agente."""
-    question = inputs.get("question", "")
-    result = await chat(question)
-    return {"answer": result["output"], "messages": result["messages"]}
-
-async def main():
-    await load_knowledge_base(kb_dir=kb_path)
-
-    # El evaluador vinculado al dataset en LangSmith se ejecuta automáticamente
-    results = await aevaluate(
-        chat_wrapper,
-        data=dataset_name
-    )
-```
-
-- **`aevaluate()`**: Versión asíncrona de `evaluate()` en LangSmith, diseñada para agentes asíncronos (`async/await`) que ejecutan llamadas concurrentes.
-- **Evaluadores Vinculados (*Bound Evaluators*)**:
-  - En la interfaz web de LangSmith, dentro de `officeflow-dataset`, se puede configurar una regla de evaluación como *"Evaluate response helpfulness"* o *"Tone check"*. Al llamar a `aevaluate` sin especificar el parámetro `evaluators=[]`, LangSmith ejecuta automáticamente los jueces asignados en la nube.
+El script [`eval_llm_judge.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-5/eval_llm_judge.py) implementa la función `helpfulness_and_tone_judge`:
+- Prompt con criterios explícitos:
+  1. **Helpfulness**: ¿Respondió con precisión a la consulta?
+  2. **Tone & Empathy**: ¿Fue educado y empático?
+  3. **Policy Compliance**: ¿Redirigió al correo correcto si no puede resolverlo?
+- Salida estructurada JSON con `score` (1 a 5) y `reasoning`.
 
 ---
 
 ## 🚀 Cómo Ejecutar
 
-Desde la carpeta `module-2/lesson-5/`:
+Desde la carpeta raíz del proyecto:
 
 ```bash
-cd module-2/lesson-5
-python run_experiment.py
+uv run python module-2/lesson-5/run_experiment.py
+```
+
+Para probar solo el evaluador LLM de forma aislada:
+```bash
+uv run python module-2/lesson-5/eval_llm_judge.py
 ```

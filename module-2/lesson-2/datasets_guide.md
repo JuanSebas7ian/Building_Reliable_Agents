@@ -45,23 +45,13 @@ Para poder ejecutar los experimentos de las lecciones 3, 4, 5 y 6, debes cargar 
 7. Mapea la columna `question` como **Input**.
 8. Haz clic en **Create**.
 
-### Opción 2: Mediante Código Python con el SDK de LangSmith
-```python
-from langsmith import Client
-import pandas as pd
+### Opción 2: Mediante el Script Automatizado [`upload_dataset.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-2/upload_dataset.py) (Recomendado para CLI)
 
-client = Client()
-df = pd.read_csv("officeflow-dataset.csv")
+Puedes ejecutar directamente el script incluido en esta lección:
 
-dataset = client.create_dataset(
-    dataset_name="officeflow-dataset",
-    description="Preguntas de prueba para evaluar al agente de soporte Emma de OfficeFlow"
-)
-
-for _, row in df.iterrows():
-    client.create_example(
-        inputs={"question": row["question"]},
-        outputs={},
-        dataset_id=dataset.id
-    )
+```bash
+uv run python module-2/lesson-2/upload_dataset.py
 ```
+
+El script utiliza el SDK oficial de LangSmith para comprobar si el dataset ya existe, crearlo si es necesario y cargar las 25 preguntas preservando el formato `Key-Value`.
+

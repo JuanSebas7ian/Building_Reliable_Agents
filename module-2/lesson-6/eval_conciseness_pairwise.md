@@ -1,34 +1,35 @@
 # Módulo 2 - Lección 6: `eval_conciseness_pairwise.py` (Juez Pareado de Concisión)
 
 ## 🎯 Propósito y Concepto Teórico
-Este archivo define la lógica del **Juez Pareado** utilizando un LLM (`gpt-5-nano` o equivalente) con un schema estructurado para dictaminar cuál de dos respuestas (`Response A` o `Response B`) es más concisa, directa y útil para el usuario final.
+Este archivo define la lógica del **Juez Pareado (A/B)** utilizando un LLM (`qwen2.5:7b` en Ollama o `gpt-5-nano` en OpenAI) junto con el módulo [`token_utils.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/token_utils.py) para dictaminar cuál de dos respuestas (`Response A` o `Response B`) es más concisa, directa y eficiente sin omitir información crucial.
 
 ---
 
 ## ⚖️ Prevención de Sesgos en Evaluación Pareada
 
-Al evaluar dos respuestas con un LLM, existen sesgos conocidos:
-1. **Position Bias (Sesgo de Posición)**: Los LLMs tienden a preferir la Respuesta A por sobre la B simplemente por aparecer primero en el prompt.
-   - *Solución*: LangSmith incluye el parámetro `randomize_order=True` en `evaluate((exp_a, exp_b))` para barajar aleatoriamente el orden de las respuestas y neutralizar este sesgo.
-2. **Verbosity Bias (Sesgo de Verbosidad)**: Los LLMs suelen asumir erróneamente que las respuestas más largas son más completas o educadas.
-   - *Solución*: El prompt de evaluación en este script instruye enfáticamente al juez a penalizar las palabras de relleno y premiar las respuestas directas.
+Al evaluar dos respuestas con un LLM, existen dos sesgos clásicos que distorsionan los resultados:
+1. **Position Bias (Sesgo de Posición)**: Los LLMs tienden a preferir la Respuesta A sobre la B simplemente por aparecer primero en el prompt.
+   - *Solución*: LangSmith incluye el parámetro `randomize_order=True` en `evaluate((exp_a, exp_b))` para barajar aleatoriamente el orden de presentación a nivel de cada ejemplo.
+2. **Verbosity Bias (Sesgo de Verbosidad)**: Los LLMs tienden a asociar mayor longitud con mayor cortesía o completitud.
+   - *Solución*: El prompt instruye explícitamente al juez a penalizar las frases de relleno ("Me complace informarle...") y premiar las respuestas directas. Además, se combinan las métricas cuantitativas de tokens de `token_utils.py`.
 
 ---
 
-## 🔍 Schema de Salida Estructurada
+## 🧮 Integración con el Tokenizador
+El evaluador pareado integra la comparación exacta de tokens (`tiktoken` con codificación `cl100k_base`):
+- `calculate_conciseness_metrics(resp_a, resp_b)` calcula la reducción porcentual de tokens.
+- Esto permite correlacionar el dictamen del LLM juez con el ahorro medible de tokens y latencia entre `agent_v4` y `agent_v5`.
 
-El juez responde forzando un formato JSON estructurado:
-```python
-class ConcisenessChoice(BaseModel):
-    reasoning: str  # Explicación paso a paso de la decisión
-    preferred: Literal["A", "B", "TIE"]  # Ganador o empate
+---
+
+## 🚀 Integración y Ejecución
+
+Puedes ejecutar la comparación pareada de dos experimentos ya generados:
+```bash
+uv run python module-2/lesson-6/eval_conciseness_pairwise.py <nombre-experimento-a> <nombre-experimento-b>
 ```
 
----
-
-## 🚀 Integración
-
-Esta función se pasa como evaluador en `run_pairwise_experiment.py`:
-```python
-from eval_conciseness_pairwise import conciseness_evaluator
+O ejecutar el pipeline todo-en-uno que lanza los dos agentes y los compara de forma automática:
+```bash
+uv run python module-2/lesson-6/run_pairwise_experiment.py
 ```

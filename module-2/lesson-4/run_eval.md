@@ -1,7 +1,9 @@
-# Módulo 2 - Lección 4: `run_eval.py` (Lanzador de Evaluación de Esquema)
+# Módulo 2 - Lección 4: `run_eval.py` (Lanzador de Evaluaciones Basadas en Código)
 
 ## 🎯 Propósito
-Este script es el ejecutor (*runner*) que conecta el agente de producción [`agent_v5.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/officeflow-agent/agent_v5.py), el dataset [`officeflow-dataset`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-2/officeflow-dataset.csv) y el evaluador determinista [`eval_schema_check.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/eval_schema_check.py).
+Este script es el ejecutor (*runner*) que conecta el agente de producción [`agent_v5.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/officeflow-agent/agent_v5.py), el dataset [`officeflow-dataset`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-2/officeflow-dataset.csv) y la suite de evaluadores deterministas basados en código:
+1. [`eval_schema_check.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/eval_schema_check.py): Descubrimiento previo del esquema SQL.
+2. [`eval_stock_policy.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/eval_stock_policy.py): Cumplimiento estricto de no exponer números exactos de existencias.
 
 ---
 
@@ -13,33 +15,31 @@ Este script es el ejecutor (*runner*) que conecta el agente de producción [`age
        agent_v5.thread_id = str(uuid7())
        return asyncio.run(chat(inputs["question"]))
    ```
-   - Para evitar que la memoria conversacional de una pregunta interfiera con la siguiente, se genera un nuevo `thread_id` en cada iteración del dataset.
+   - Para evitar que la memoria conversacional de una pregunta contamine la siguiente, se genera un nuevo `thread_id` (UUIDv7) en cada iteración del dataset.
 
 2. **Carga Previa de la Base de Conocimiento**:
    ```python
    await setup()  # Carga embeddings y documentos en memoria antes del test
    ```
 
-3. **Ejecución con Prefijo de Experimento**:
+3. **Ejecución de Múltiples Evaluadores**:
    ```python
    results = evaluate(
        run_agent,
        data="officeflow-dataset",
-       evaluators=[schema_before_query],
-       experiment_prefix="schema-check-v5",
+       evaluators=[schema_before_query, check_no_exact_quantities],
+       experiment_prefix="code-eval-v5",
    )
    ```
-   - `experiment_prefix="schema-check-v5"` ayuda a etiquetar y comparar distintas ejecuciones en LangSmith.
 
 ---
 
 ## 🚀 Cómo Ejecutar
 
-Desde la carpeta `module-2/lesson-4/`:
+Desde la raíz del proyecto o desde la carpeta `module-2/lesson-4/`:
 
 ```bash
-cd module-2/lesson-4
-python run_eval.py
+uv run python module-2/lesson-4/run_eval.py
 ```
 
-Al terminar, obtendrás una tasa de éxito (porcentaje de consultas donde se respetó el chequeo previo de esquema) y podrás filtrar en LangSmith qué preguntas fallaron para investigar el motivo.
+Al terminar, obtendrás métricas objetivas (100% deterministas, sin costo de tokens por evaluación) y la URL directa para examinar en LangSmith los casos específicos que no cumplieron las políticas.
