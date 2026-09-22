@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "langsmith-evaluator": {
+      "source": "langchain-ai/langsmith-skills",
+      "sourceType": "github",
+      "skillPath": "config/skills/langsmith-evaluator/SKILL.md",
+      "computedHash": "c113785f21f5b1fc90f0d925348482cdad3917b0e1bbdd5277a3edebd590767c"
+    }
+  }
+}

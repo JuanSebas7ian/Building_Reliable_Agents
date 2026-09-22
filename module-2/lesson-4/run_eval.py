@@ -43,13 +43,30 @@ async def setup():
 
 
 def run_agent(inputs: dict) -> dict:
-    """Invoca al agente Emma con un thread_id fresco e independiente por cada pregunta."""
-    agent_v5.thread_id = str(uuid7())
-    result = asyncio.run(chat(inputs["question"]))
+    """
+    Función Target (Run Function) diseñada bajo las directrices del skill langsmith-evaluator.
+
+    1. Aislamiento estricto: Genera un nuevo thread_id (UUIDv7) por cada fila del dataset
+       para evitar contaminación de memoria conversacional entre preguntas.
+    2. Extracción defensiva: Soporta diferentes claves de entrada ('question', 'input').
+    3. Retorno enriquecido para trayectoria: Devuelve la respuesta final ('output'/'response')
+       junto con la secuencia cronológica completa de 'messages' y 'tool_calls' para que los
+       evaluadores de trayectoria (schema_before_query) puedan auditarlos sin pérdida de datos.
+    """
+    session_id = str(uuid7())
+    agent_v5.thread_id = session_id
+
+    question = inputs.get("question") or inputs.get("input") or str(inputs)
+    result = asyncio.run(chat(question))
+    output_text = result.get("output", "")
+    messages_history = result.get("messages", [])
+
     return {
-        "output": result.get("output", ""),
-        "messages": result.get("messages", []),
-        "tokens": token_utils.count_tokens(result.get("output", "")),
+        "output": output_text,
+        "response": output_text,
+        "messages": messages_history,
+        "tokens": token_utils.count_tokens(output_text),
+        "thread_id": session_id,
     }
 
 
@@ -58,7 +75,7 @@ if __name__ == "__main__":
     print("MÓDULO 2 - LECCIÓN 4: EVALUACIÓN DETERMINISTA BASADA EN CÓDIGO")
     print("=" * 70)
     print(f"Modelo:        {os.getenv('CHAT_MODEL', 'qwen2.5:7b')} ({os.getenv('OPENAI_BASE_URL', 'Ollama')})")
-    print(f"Evaluadores:   [schema_before_query, check_no_exact_quantities]")
+    print("Evaluadores:   [schema_before_query, check_no_exact_quantities]")
     print("=" * 70)
 
     asyncio.run(setup())

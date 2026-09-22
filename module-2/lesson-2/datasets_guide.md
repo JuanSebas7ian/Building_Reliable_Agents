@@ -4,9 +4,12 @@
 Para evaluar de manera científica y reproducible un agente de IA, no basta con interactuar manualmente en un chat. Es indispensable contar con un **Dataset de Evaluación** (*Golden Dataset*) que represente la distribución real de consultas que el agente enfrentará en producción.
 
 En LangSmith, un Dataset es una colección de ejemplos compuestos por:
+
 - **Inputs**: Los datos de entrada que recibirá el agente (por ejemplo, la pregunta del usuario `question`).
 - **Outputs (Opcional)**: Respuestas de referencia o criterios esperados (*ground truth*).
 - **Metadata (Opcional)**: Etiquetas como categoría de la consulta, dificultad, etc.
+
+> 📖 **Guía Oficial Detallada**: Para profundizar en los 7 métodos de creación de datasets, reglas automáticas, colas de anotación, esquemas JSON y splits en la interfaz de LangSmith, consulta [`MANAGE_DATASETS_IN_APPLICATION.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/MANAGE_DATASETS_IN_APPLICATION.md).
 
 ---
 
@@ -36,6 +39,7 @@ El archivo [`officeflow-dataset.csv`](file:///f:/Cursos_code/LANGCHAIN/Building_
 Para poder ejecutar los experimentos de las lecciones 3, 4, 5 y 6, debes cargar este dataset en tu cuenta de LangSmith con el nombre exacto `officeflow-dataset`:
 
 ### Opción 1: Desde la Interfaz Web de LangSmith (Recomendado)
+
 1. Inicia sesión en [https://smith.langchain.com/](https://smith.langchain.com/).
 2. En el menú lateral izquierdo, haz clic en **Datasets & Testing**.
 3. Haz clic en el botón superior derecho **+ New Dataset**.

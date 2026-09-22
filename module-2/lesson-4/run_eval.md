@@ -43,3 +43,10 @@ uv run python module-2/lesson-4/run_eval.py
 ```
 
 Al terminar, obtendrás métricas objetivas (100% deterministas, sin costo de tokens por evaluación) y la URL directa para examinar en LangSmith los casos específicos que no cumplieron las políticas.
+
+---
+
+## 📚 Documentación y Catálogo de Prompts
+
+- 📖 **Guía Completa de la Lección**: [`LESSON_4_COMPLETE_GUIDE.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/LESSON_4_COMPLETE_GUIDE.md)
+- 💬 **Catálogo de Prompts para Skills**: [`SKILLS_PROMPTS_GUIDE.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/SKILLS_PROMPTS_GUIDE.md)
