@@ -49,11 +49,12 @@ Respond in the following JSON format ONLY:
 }}"""
 
 
-def helpfulness_and_tone_judge(run, example) -> dict:
+def helpfulness_and_tone_judge(run, example=None) -> dict:
     """
     Evaluador LLM-as-a-Judge compatible con LangSmith evaluate().
     Extrae question del input y response del output, e invoca al LLM juez.
     """
+    _ = example  # Parámetro canónico de LangSmith para evaluadores offline
     # Extraer entradas y salidas
     inputs = run.inputs if hasattr(run, "inputs") and run.inputs else run.get("inputs", {})
     outputs = run.outputs if hasattr(run, "outputs") and run.outputs else run.get("outputs", {})
@@ -113,19 +114,39 @@ def helpfulness_and_tone_judge(run, example) -> dict:
 
 
 if __name__ == "__main__":
-    # Test diagnóstico del juez
-    test_run = {
+    print("=" * 70)
+    print("TEST DIAGNÓSTICO: EVALUADOR LLM-AS-A-JUDGE (helpfulness_and_tone_judge)")
+    print("=" * 70)
+    print(f"Juez usando modelo: {CHAT_MODEL} en {BASE_URL}")
+
+    # Caso 1: Respuesta Excelente (Empática, informativa, correo correcto)
+    good_run = {
         "inputs": {"question": "How do I return a damaged product?"},
         "outputs": {
             "output": (
                 "I'm sorry to hear your item arrived damaged! While I can't process returns directly, "
                 "our Returns Department will take care of you right away. Please email returns@officeflow.com "
-                "with your order number. They typically respond within 4 business hours."
+                "with your order number. They typically respond within 4 business hours. Is there anything else I can help with?"
             )
         }
     }
 
-    print("=== TEST DIAGNÓSTICO LLM-AS-A-JUDGE ===")
-    print(f"Juez usando modelo: {CHAT_MODEL} en {BASE_URL}")
-    result = helpfulness_and_tone_judge(test_run, {})
-    print("Resultado:", json.dumps(result, indent=2))
+    # Caso 2: Respuesta Deficiente (Cortante, sin empatía, sin datos de contacto)
+    bad_run = {
+        "inputs": {"question": "How do I return a damaged product?"},
+        "outputs": {
+            "output": "I don't handle returns. Not my department."
+        }
+    }
+
+    print("\n1. Evaluando Respuesta Excelente (Buena atención):")
+    res_good = helpfulness_and_tone_judge(good_run, {})
+    print(f"   Score: {res_good['score']} | Comentario: {res_good['comment']}")
+
+    print("\n2. Evaluando Respuesta Deficiente (Mala atención):")
+    res_bad = helpfulness_and_tone_judge(bad_run, {})
+    print(f"   Score: {res_bad['score']} | Comentario: {res_bad['comment']}")
+
+    print("\n" + "=" * 70)
+    print("✅ Prueba diagnóstica finalizada.")
+    print("=" * 70)

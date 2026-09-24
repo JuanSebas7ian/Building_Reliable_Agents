@@ -99,3 +99,10 @@ Cuando instalamos los skills oficiales de LangSmith en `.agents/skills/`, Antigr
 | **Probar Evaluador SQL** | `uv run python eval_schema_check.py` | `uv run python eval_schema_check.py` |
 | **Probar Evaluador Stock** | `uv run python eval_stock_policy.py` | `uv run python eval_stock_policy.py` |
 | **Lanzar Experimento Completo** | `uv run python run_eval.py` | `uv run python run_eval.py` |
+
+---
+
+## 🔄 4. Equivalente en MLflow
+
+Si deseas replicar esta misma arquitectura de evaluación determinista y tracing en **MLflow**, consulta la guía complementaria:
+👉 [`MLFLOW_EVALUATION_GUIDE.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/MLFLOW_EVALUATION_GUIDE.md)

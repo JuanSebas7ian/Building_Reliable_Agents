@@ -34,11 +34,24 @@ DATASET_NAME = "officeflow-dataset"
 
 
 async def chat_wrapper(inputs: dict) -> dict:
-    """Invoca al agente con thread_id independiente para cada pregunta del dataset."""
-    agent_v4.thread_id = str(uuid7())
-    question = inputs.get("question", "")
+    """
+    Invoca al agente Emma (agent_v4) con thread_id independiente para cada ejemplo.
+    
+    Garantiza aislamiento de memoria, extracción defensiva de entradas
+    y mapeo uniforme de claves de salida ('output', 'answer', 'response').
+    """
+    session_id = str(uuid7())
+    agent_v4.thread_id = session_id
+    question = inputs.get("question") or inputs.get("input") or str(inputs)
     result = await chat(question)
-    return {"answer": result["output"], "messages": result["messages"]}
+    output_text = result.get("output", "")
+    return {
+        "output": output_text,
+        "answer": output_text,
+        "response": output_text,
+        "messages": result.get("messages", []),
+        "thread_id": session_id,
+    }
 
 
 async def main():
@@ -47,7 +60,7 @@ async def main():
     print("=" * 70)
     print(f"Modelo Evaluador / Agente: {os.getenv('CHAT_MODEL', 'qwen2.5:7b')}")
     print(f"Endpoint:                  {os.getenv('OPENAI_BASE_URL', 'http://localhost:11434/v1')}")
-    print(f"Evaluador en ejecución:    helpfulness_and_tone_judge (Rúbrica 1-5)")
+    print("Evaluador en ejecución:    helpfulness_and_tone_judge (Rúbrica 1-5)")
     print("=" * 70)
 
     # 1. Cargar Base de Conocimiento RAG
@@ -56,16 +69,17 @@ async def main():
     await load_knowledge_base(kb_dir=kb_path)
 
     # 2. Ejecutar experimento con el juez LLM
+    # Nota: max_concurrency=1 es ideal para Ollama local evitando sobrecarga de VRAM
     print("\nIniciando evaluación con aevaluate()...")
     results = await aevaluate(
         chat_wrapper,
         data=DATASET_NAME,
         evaluators=[helpfulness_and_tone_judge],
         experiment_prefix="llm-judge-v4",
-        max_concurrency=2,
+        max_concurrency=1,
     )
 
-    print(f"\n✅ Evaluación cualitativa completada con éxito.")
+    print("\n✅ Evaluación cualitativa completada con éxito.")
     return results
 
 
