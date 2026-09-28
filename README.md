@@ -271,12 +271,46 @@ pip install -r requirements.txt
 
 </details>
 
-### Model Providers
+### Model Providers & Modelos de IA Utilizados
 
-If you don't have an OpenAI API key, you can sign up [here](https://openai.com/index/openai-api/). The course primarily uses gpt-5-nano which is very inexpensive.
-You may also obtain additional API keys for [Anthropic](https://console.anthropic.com).
+Este repositorio cuenta con soporte nativo dual: **Ollama Local** (ejecución 100% gratuita y privada en GPU NVIDIA local) y **OpenAI / Anthropic** (en la nube).
 
-This course has been created using particular models and model providers.  You can use other providers, but you will need to update the API keys in the .env file and make some necessary code changes. LangChain supports many chat model providers [here](https://docs.langchain.com/oss/python/integrations/providers/all_providers).
+#### 🦙 Configuración Predeterminada: Ollama Local (Recomendado)
+
+| Rol en el Proyecto | Modelo Utilizado | Endpoint / Proveedor | Dimensiones / Tipo | Propósito |
+| :--- | :--- | :--- | :--- | :--- |
+| **Chat & Razonamiento del Agente** | `qwen2.5:7b` | `http://localhost:11434/v1` | 7.6B parámetros (Q4_K_M) | Agente Emma (SQL Tool Calling, RAG de políticas y respuestas al cliente) |
+| **Juez Evaluador (LLM-as-a-Judge)** | `qwen2.5:7b` | `http://localhost:11434/v1` | Temperature: 0.0 - 0.1 | Auditor de calidad en Lección 5 y evaluación pareada en Lección 6 |
+| **Embeddings Vectoriales** | `nomic-embed-text` | `http://localhost:11434/api/embeddings` | 768 dimensiones | Indexación y búsqueda semántica de la base de conocimiento (`knowledge_base`) |
+
+**Descarga de modelos locales con Ollama:**
+```bash
+# 1. Descargar el modelo de lenguaje de 7B parámetros
+ollama pull qwen2.5:7b
+
+# 2. Descargar el modelo de embeddings
+ollama pull nomic-embed-text
+```
+
+**Variables en tu archivo `.env` para Ollama Local:**
+```env
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_API_KEY=ollama
+CHAT_MODEL=qwen2.5:7b
+EMBEDDING_MODEL=nomic-embed-text
+```
+
+#### ☁️ Configuración Alternativa: OpenAI Cloud
+
+Si prefieres ejecutar los modelos contra las APIs oficiales de OpenAI:
+```env
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=tu_api_key_de_openai
+CHAT_MODEL=gpt-5-nano
+EMBEDDING_MODEL=text-embedding-3-small
+```
+
+---
 
 ### Getting Started with LangSmith
 

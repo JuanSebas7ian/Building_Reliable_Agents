@@ -63,13 +63,15 @@ async def main():
     await load_kb_v4(KB_DIR)
     await load_kb_v5(KB_DIR)
 
+    max_concurrency = int(os.getenv("MAX_CONCURRENCY", "1"))
+
     # Paso 2: Experimento para agent v4
     print("\n[Paso 1/3] Ejecutando experimento para Agent v4...")
     v4_results = await aevaluate(
         chat_wrapper_v4,
         data=DATASET_NAME,
         experiment_prefix="agent-v4",
-        max_concurrency=2,
+        max_concurrency=max_concurrency,
     )
 
     # Paso 3: Experimento para agent v5
@@ -78,7 +80,7 @@ async def main():
         chat_wrapper_v5,
         data=DATASET_NAME,
         experiment_prefix="agent-v5",
-        max_concurrency=2,
+        max_concurrency=max_concurrency,
     )
 
     v4_exp = v4_results.experiment_name
