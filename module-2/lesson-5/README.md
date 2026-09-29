@@ -1,6 +1,7 @@
 # Módulo 2 - Lección 5: Evaluación Cualitativa con LLM-as-a-Judge
 
 > **Curso Oficial**: [LangChain Academy - Building Reliable Agents: Lesson 5 - Eval 2: LLM-as-Judge](https://academy.langchain.com/courses/take/building-reliable-agents/multimedia/72670191-lesson-5-eval-2-llm-as-judge)  
+> **Clase Magistral (Explicación Profesor)**: [`CLASE_MAGISTRAL_LECCION_5.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-5/CLASE_MAGISTRAL_LECCION_5.md)  
 > **Guía Pedagógica Maestra**: [`LESSON_5_COMPLETE_GUIDE.md`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-5/LESSON_5_COMPLETE_GUIDE.md)  
 > **Skills de Antigravity Integrados**: [`langsmith-evaluator`](file:///f:/Cursos_code/LANGCHAIN/.agents/skills/langsmith-evaluator/SKILL.md) & [`langsmith-trace`](file:///f:/Cursos_code/LANGCHAIN/.agents/skills/langsmith-trace/SKILL.md)  
 
