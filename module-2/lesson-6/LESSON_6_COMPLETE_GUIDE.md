@@ -1,12 +1,12 @@
 # Módulo 2 - Lección 6: Evaluación Pareada A/B con LLM-as-a-Judge (*Pairwise Evaluation*)
 
 > **Referencia Oficial del Curso**: [LangChain Academy - Building Reliable Agents: Lesson 6 - Eval 3: Pairwise](https://academy.langchain.com/courses/take/building-reliable-agents/multimedia/72670192-lesson-6-eval-3-pairwise)  
-> **Skills de Antigravity Integrados**: [`langsmith-evaluator`](file:///f:/Cursos_code/LANGCHAIN/.agents/skills/langsmith-evaluator/SKILL.md) & [`langsmith-trace`](file:///f:/Cursos_code/LANGCHAIN/.agents/skills/langsmith-trace/SKILL.md)  
-> **Agentes Comparados**: Emma v4 ([`agent_v4.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/officeflow-agent/agent_v4.py)) vs Emma v5 ([`agent_v5.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/officeflow-agent/agent_v5.py))  
-> **Evaluador Implementado**: [`eval_conciseness_pairwise.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py) (`conciseness_evaluator`)  
-> **Utilidad de Métricas**: [`token_utils.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/token_utils.py)  
+> **Skills de Antigravity Integrados**: [`langsmith-evaluator`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/.agents/skills/langsmith-evaluator/SKILL.md) & [`langsmith-trace`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/.agents/skills/langsmith-trace/SKILL.md)  
+> **Agentes Comparados**: Emma v4 ([`agent_v4.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/officeflow-agent/agent_v4.py)) vs Emma v5 ([`agent_v5.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/officeflow-agent/agent_v5.py))  
+> **Evaluador Implementado**: [`eval_conciseness_pairwise.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py) (`conciseness_evaluator`)  
+> **Utilidad de Métricas**: [`token_utils.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/token_utils.py)  
 > **Dataset**: `officeflow-dataset` (25 preguntas)  
-> **Orquestadores**: [`run_pairwise_experiment.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/run_pairwise_experiment.py) y [`run_agents.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/run_agents.py)  
+> **Orquestadores**: [`run_pairwise_experiment.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/run_pairwise_experiment.py) y [`run_agents.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/run_agents.py)  
 
 ---
 
@@ -16,8 +16,8 @@ Estimado estudiante, bienvenido a la **Lección 6**, el pináculo del Módulo 2 
 
 Repasemos la evolución de nuestro viaje de ingeniería de confiabilidad:
 
-1. En la [Lección 4](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-4/LESSON_4_COMPLETE_GUIDE.md), creamos **evaluadores deterministas de código**: reglas matemáticas absolutas en Python que validan cumplimiento estricto (ej. no revelar números de stock y chequear el esquema de la base de datos).
-2. En la [Lección 5](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-5/LESSON_5_COMPLETE_GUIDE.md), implementamos **evaluación cualitativa individual (LLM-as-a-Judge)**: un modelo evaluó una a una las respuestas de Emma según una rúbrica de cortesía, empatía y resolución del problema.
+1. En la [Lección 4](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-4/LESSON_4_COMPLETE_GUIDE.md), creamos **evaluadores deterministas de código**: reglas matemáticas absolutas en Python que validan cumplimiento estricto (ej. no revelar números de stock y chequear el esquema de la base de datos).
+2. En la [Lección 5](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-5/LESSON_5_COMPLETE_GUIDE.md), implementamos **evaluación cualitativa individual (LLM-as-a-Judge)**: un modelo evaluó una a una las respuestas de Emma según una rúbrica de cortesía, empatía y resolución del problema.
 
 Ahora surge una interrogante inevitable: **¿Qué hacemos cuando queremos comparar dos versiones de nuestro agente y elegir cuál desplegar a producción?**
 
@@ -77,7 +77,7 @@ Al poner a competir dos respuestas frente a un LLM, existen dos sesgos cognitivo
 * **El Problema**: Los LLMs asocian instintivamente respuestas más largas, elocuentes y llenas de adornos con mayor "cortesía" o "sabiduría".
 * **La Solución en el Prompt y la Métrica**:
   1. **Prompt con Rúbrica de Concisión Estricta**: Se instruye al juez que la concisión implica ir directo al punto y eliminar frases de relleno, pero **se le prohíbe premiar respuestas cortas si omiten información crucial** (ej. correos de contacto o pasos obligatorios).
-  2. **Medición Cuantitativa Paralela**: Integramos [`token_utils.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/token_utils.py) para registrar la reducción matemática exacta de tokens (`completion_tokens` y porcentaje de ahorro).
+  2. **Medición Cuantitativa Paralela**: Integramos [`token_utils.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/token_utils.py) para registrar la reducción matemática exacta de tokens (`completion_tokens` y porcentaje de ahorro).
 
 ---
 
@@ -106,7 +106,7 @@ in one sentence, don't use three. Customers appreciate quick, direct answers ove
 
 ## 🔬 4. Deconstrucción Técnica del Código de la Lección 6
 
-### A. El Evaluador Pareado: [`eval_conciseness_pairwise.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py)
+### A. El Evaluador Pareado: [`eval_conciseness_pairwise.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py)
 
 El archivo define la función `conciseness_evaluator`, diseñada bajo el contrato de `DynamicComparisonRunEvaluator` de LangSmith:
 
@@ -158,7 +158,7 @@ return {
 
 LangSmith y el curso ofrecen dos formas de ejecutar una evaluación pareada:
 
-#### 1. Enfoque Desacoplado ([`run_agents.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/run_agents.py) + [`eval_conciseness_pairwise.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py))
+#### 1. Enfoque Desacoplado ([`run_agents.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/run_agents.py) + [`eval_conciseness_pairwise.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py))
 
 Ideal cuando quieres conservar los experimentos de los agentes de forma independiente o cuando ya corriste los agentes previamente:
 
@@ -170,7 +170,7 @@ uv run python module-2/lesson-6/run_agents.py
 uv run python module-2/lesson-6/eval_conciseness_pairwise.py agent-v4-abc1234 agent-v5-xyz5678
 ```
 
-#### 2. Enfoque Todo-en-Uno ([`run_pairwise_experiment.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/run_pairwise_experiment.py))
+#### 2. Enfoque Todo-en-Uno ([`run_pairwise_experiment.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/run_pairwise_experiment.py))
 
 Automatiza los tres pasos en un único comando asíncrono:
 
@@ -193,7 +193,7 @@ evaluate(
 
 ## 🧪 5. Validación Práctica con Ollama Local (`qwen2.5:7b`)
 
-El script [`eval_conciseness_pairwise.py`](file:///f:/Cursos_code/LANGCHAIN/Building_Releable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py) incluye un modo de **auto-diagnóstico local**. Al ejecutarlo directamente, prueba ambos extremos del criterio de evaluación:
+El script [`eval_conciseness_pairwise.py`](file:///home/juansebas7ian/Proyectos/GitHub/Building_Reliable_Agents/module-2/lesson-6/eval_conciseness_pairwise.py) incluye un modo de **auto-diagnóstico local**. Al ejecutarlo directamente, prueba ambos extremos del criterio de evaluación:
 
 ```bash
 uv run python module-2/lesson-6/eval_conciseness_pairwise.py

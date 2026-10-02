@@ -1,0 +1,214 @@
+{
+  "total_questions": 25,
+  "wins_v5": 14,
+  "wins_v4": 6,
+  "ties": 5,
+  "winrate_v5": 56.00000000000001,
+  "winrate_v4": 24.0,
+  "tierate": 20.0,
+  "total_tokens_v4": 3079,
+  "total_tokens_v5": 1731,
+  "token_reduction_pct": 43.78044819746671,
+  "details": [
+    {
+      "index": 1,
+      "question": "How many reams of copy paper do you currently have available?",
+      "tokens_v4": 57,
+      "tokens_v5": 42,
+      "winner": "Emma v5",
+      "comment": "Respuesta B es más concisa y efectiva. Tokens A: 57 | Tokens B: 42. Ahorro de tokens en B vs A: 15 (26.32%)."
+    },
+    {
+      "index": 2,
+      "question": "I need spiral notebooks for my team — can you tell me how many 3-packs you have right now?",
+      "tokens_v4": 59,
+      "tokens_v5": 2,
+      "winner": "Empate",
+      "comment": "Ambas respuestas son equivalentes. Tokens A: 2 | Tokens B: 59. Ahorro de tokens en B vs A: -57 (-2850.0%)."
+    },
+    {
+      "index": 3,
+      "question": "Do you carry ballpoint pens?",
+      "tokens_v4": 53,
+      "tokens_v5": 20,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 20 | Tokens B: 53. Ahorro de tokens en B vs A: -33 (-165.0%)."
+    },
+    {
+      "index": 4,
+      "question": "Do you carry staplers?",
+      "tokens_v4": 20,
+      "tokens_v5": 2,
+      "winner": "Empate",
+      "comment": "Ambas respuestas son equivalentes. Tokens A: 2 | Tokens B: 20. Ahorro de tokens en B vs A: -18 (-900.0%)."
+    },
+    {
+      "index": 5,
+      "question": "I'm looking to buy manila file folders in bulk. How many packs do you have remaining?",
+      "tokens_v4": 41,
+      "tokens_v5": 2,
+      "winner": "Empate",
+      "comment": "Ambas respuestas son equivalentes. Tokens A: 41 | Tokens B: 2. Ahorro de tokens en B vs A: 39 (95.12%)."
+    },
+    {
+      "index": 6,
+      "question": "I've been trying to order copy paper all week and your website keeps crashing. Just tell me — do you even have any left and how much does it cost?",
+      "tokens_v4": 84,
+      "tokens_v5": 37,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 37 | Tokens B: 84. Ahorro de tokens en B vs A: -47 (-127.03%)."
+    },
+    {
+      "index": 7,
+      "question": "We go through a LOT of pens. I need to know exactly how many blue ballpoint pen packs are in your warehouse before I commit to ordering.",
+      "tokens_v4": 55,
+      "tokens_v5": 16,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 16 | Tokens B: 55. Ahorro de tokens en B vs A: -39 (-243.75%)."
+    },
+    {
+      "index": 8,
+      "question": "Can you check if you have spiral notebooks AND staplers in stock?",
+      "tokens_v4": 53,
+      "tokens_v5": 45,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 45 | Tokens B: 53. Ahorro de tokens en B vs A: -8 (-17.78%)."
+    },
+    {
+      "index": 9,
+      "question": "I'm looking for pet food for my cats, do you carry Purina?",
+      "tokens_v4": 75,
+      "tokens_v5": 22,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 22 | Tokens B: 75. Ahorro de tokens en B vs A: -53 (-240.91%)."
+    },
+    {
+      "index": 10,
+      "question": "OK here's what I need: 1) How many reams of copy paper do you have? 2) What's the price on blue pens? 3) Do you offer free shipping?",
+      "tokens_v4": 118,
+      "tokens_v5": 2,
+      "winner": "Empate",
+      "comment": "Ambas respuestas son equivalentes. Tokens A: 2 | Tokens B: 118. Ahorro de tokens en B vs A: -116 (-5800.0%)."
+    },
+    {
+      "index": 11,
+      "question": "What are the hours you are open?",
+      "tokens_v4": 210,
+      "tokens_v5": 55,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 55 | Tokens B: 210. Ahorro de tokens en B vs A: -155 (-281.82%)."
+    },
+    {
+      "index": 12,
+      "question": "I'd like to order some sticky notes — what quantity do you currently have in stock?",
+      "tokens_v4": 54,
+      "tokens_v5": 45,
+      "winner": "Empate",
+      "comment": "Ambas respuestas son equivalentes. Tokens A: 45 | Tokens B: 54. Ahorro de tokens en B vs A: -9 (-20.0%)."
+    },
+    {
+      "index": 13,
+      "question": "How many rolls of packing tape do you have on the shelves right now?",
+      "tokens_v4": 21,
+      "tokens_v5": 21,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 21 | Tokens B: 21. Ahorro de tokens en B vs A: 0 (0.0%)."
+    },
+    {
+      "index": 14,
+      "question": "I'm very unhappy with the stapler I received. It only staples 3 sheets before it jams!",
+      "tokens_v4": 59,
+      "tokens_v5": 92,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 59 | Tokens B: 92. Ahorro de tokens en B vs A: -33 (-55.93%)."
+    },
+    {
+      "index": 15,
+      "question": "I need paper clips for the office. How many boxes do you have left in inventory?",
+      "tokens_v4": 77,
+      "tokens_v5": 51,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 51 | Tokens B: 77. Ahorro de tokens en B vs A: -26 (-50.98%)."
+    },
+    {
+      "index": 16,
+      "question": "What is your return policy? How long do I have to return something?",
+      "tokens_v4": 145,
+      "tokens_v5": 211,
+      "winner": "Emma v5",
+      "comment": "Respuesta B es más concisa y efectiva. Tokens A: 145 | Tokens B: 211. Ahorro de tokens en B vs A: -66 (-45.52%)."
+    },
+    {
+      "index": 17,
+      "question": "I got a defective pen in my last order and nobody has gotten back to me in THREE DAYS. What am I supposed to do? Do I just eat the cost?",
+      "tokens_v4": 109,
+      "tokens_v5": 68,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 109 | Tokens B: 68. Ahorro de tokens en B vs A: 41 (37.61%)."
+    },
+    {
+      "index": 18,
+      "question": "How much does shipping cost and how long does it take to get my order?",
+      "tokens_v4": 425,
+      "tokens_v5": 235,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 235 | Tokens B: 425. Ahorro de tokens en B vs A: -190 (-80.85%)."
+    },
+    {
+      "index": 19,
+      "question": "I placed an order yesterday and realized I put the wrong address. Can you change it? What are my options?",
+      "tokens_v4": 150,
+      "tokens_v5": 49,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 150 | Tokens B: 49. Ahorro de tokens en B vs A: 101 (67.33%)."
+    },
+    {
+      "index": 20,
+      "question": "This is the THIRD time I've called about my lost package. Tracking says delivered but I never got it. What exactly is your process for this?",
+      "tokens_v4": 176,
+      "tokens_v5": 74,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 176 | Tokens B: 74. Ahorro de tokens en B vs A: 102 (57.95%)."
+    },
+    {
+      "index": 21,
+      "question": "What payment methods do you accept? Can I pay with a purchase order?",
+      "tokens_v4": 326,
+      "tokens_v5": 146,
+      "winner": "Emma v5",
+      "comment": "Respuesta B es más concisa y efectiva. Tokens A: 326 | Tokens B: 146. Ahorro de tokens en B vs A: 180 (55.21%)."
+    },
+    {
+      "index": 22,
+      "question": "How do I set up a business account? What are the benefits?",
+      "tokens_v4": 449,
+      "tokens_v5": 296,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 296 | Tokens B: 449. Ahorro de tokens en B vs A: -153 (-51.69%)."
+    },
+    {
+      "index": 23,
+      "question": "Where is your closest distribution center to Chicago? Can I pick up my order in person?",
+      "tokens_v4": 83,
+      "tokens_v5": 79,
+      "winner": "Emma v4",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 83 | Tokens B: 79. Ahorro de tokens en B vs A: 4 (4.82%)."
+    },
+    {
+      "index": 24,
+      "question": "What are your customer service hours? I keep calling and no one picks up on weekends.",
+      "tokens_v4": 101,
+      "tokens_v5": 72,
+      "winner": "Emma v5",
+      "comment": "Respuesta A es más concisa y efectiva. Tokens A: 72 | Tokens B: 101. Ahorro de tokens en B vs A: -29 (-40.28%)."
+    },
+    {
+      "index": 25,
+      "question": "How long has OfficeFlow been around? I want to make sure I'm buying from a reputable company.",
+      "tokens_v4": 79,
+      "tokens_v5": 47,
+      "winner": "Emma v5",
+      "comment": "Respuesta B es más concisa y efectiva. Tokens A: 79 | Tokens B: 47. Ahorro de tokens en B vs A: 32 (40.51%)."
+    }
+  ]
+}
