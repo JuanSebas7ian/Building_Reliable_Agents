@@ -1,0 +1,9 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    "officeflow-agent",
+    "module-2",
+    "module-2/lesson-6"
+  ]
+}

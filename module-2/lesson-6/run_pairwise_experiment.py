@@ -61,7 +61,7 @@ async def chat_wrapper_v5(inputs: dict) -> dict:
     return {"answer": result["output"]}
 
 
-async def run_local_pairwise(limit: int = None):
+async def run_local_pairwise(limit: int | None = None):
     print("\n" + "=" * 75)
     print("🚀 EJECUTANDO EVALUACIÓN PAREADA EN MODO LOCAL (GPU NVIDIA / OLLAMA)")
     print(f"Dataset Fuente: {DATASET_CSV.name}")
