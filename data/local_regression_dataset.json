@@ -1,0 +1,34 @@
+[
+  {
+    "trace_id": "f334ce56-a2bc-4db5-9f14-6a15a92b4e80",
+    "input": {
+      "question": "Your website's search bar returns no results for anything I type."
+    },
+    "bad_output": {
+      "response": "I'm sorry about the search issue! Contact our Technical Support team at support@officeflow.com or 1-800-OFFICE-1 ext. 6."
+    },
+    "metadata": {
+      "source": "local_trace_reviewer",
+      "timestamp": "2026-10-05T14:46:38.744490+00:00",
+      "failure_reasons": [
+        "Faithfulness: The agent did not address the user's question about the search bar and instead provided contact information for technical support, which does not directly answer the user's issue."
+      ]
+    }
+  },
+  {
+    "trace_id": "2ef867ae-54a6-4340-8ada-41a08ea9cfda",
+    "input": {
+      "question": "I need advice on investing in the stock market."
+    },
+    "bad_output": {
+      "response": "Investment advice isn't something I can provide — I'm focused on OfficeFlow product support. A financial advisor would be the right person to talk to. Need any office supplies?"
+    },
+    "metadata": {
+      "source": "local_trace_reviewer",
+      "timestamp": "2026-10-05T14:46:38.744498+00:00",
+      "failure_reasons": [
+        "Faithfulness: The response does not address the user's question about investing in the stock market."
+      ]
+    }
+  }
+]
