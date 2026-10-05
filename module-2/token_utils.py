@@ -14,6 +14,7 @@ try:
     _TIKTOKEN_AVAILABLE = True
 except ImportError:
     _TIKTOKEN_AVAILABLE = False
+    tiktoken = None  # type: ignore[assignment]
 
 
 def get_encoder(model_name: Optional[str] = None):
@@ -21,7 +22,7 @@ def get_encoder(model_name: Optional[str] = None):
     Obtiene el codificador BPE de tiktoken adecuado.
     Si el modelo es de Ollama (ej. qwen2.5) o no se reconoce, usa 'cl100k_base' como estándar industrial.
     """
-    if not _TIKTOKEN_AVAILABLE:
+    if not _TIKTOKEN_AVAILABLE or tiktoken is None:
         return None
 
     model = model_name or os.getenv("CHAT_MODEL", "qwen2.5:7b").lower()
@@ -70,11 +71,18 @@ def extract_tokens_from_run(run: Any) -> Dict[str, int]:
         "total_tokens": 0,
     }
 
-    # Si es un objeto Run de LangSmith
-    if hasattr(run, "outputs") and run.outputs:
-        outputs = run.outputs
-        usage = outputs.get("usage", {}) or outputs.get("token_usage", {})
-        if usage:
+    run_inputs: Any = getattr(run, "inputs", None)
+    if run_inputs is None and isinstance(run, dict):
+        run_inputs = run.get("inputs")
+
+    run_outputs: Any = getattr(run, "outputs", None)
+    if run_outputs is None and isinstance(run, dict):
+        run_outputs = run.get("outputs")
+
+    # Si el objeto Run tiene métricas de uso de tokens
+    if isinstance(run_outputs, dict):
+        usage = run_outputs.get("usage", {}) or run_outputs.get("token_usage", {})
+        if isinstance(usage, dict) and usage:
             metrics["prompt_tokens"] = usage.get("prompt_tokens", 0)
             metrics["completion_tokens"] = usage.get("completion_tokens", 0)
             metrics["total_tokens"] = usage.get("total_tokens", 0)
@@ -83,15 +91,11 @@ def extract_tokens_from_run(run: Any) -> Dict[str, int]:
     if metrics["total_tokens"] == 0:
         in_text = ""
         out_text = ""
-        if hasattr(run, "inputs") and isinstance(run.inputs, dict):
-            in_text = str(run.inputs.get("question", "") or run.inputs.get("input", ""))
-        elif isinstance(run, dict) and "inputs" in run:
-            in_text = str(run["inputs"].get("question", ""))
+        if isinstance(run_inputs, dict):
+            in_text = str(run_inputs.get("question", "") or run_inputs.get("input", ""))
 
-        if hasattr(run, "outputs") and isinstance(run.outputs, dict):
-            out_text = str(run.outputs.get("output", "") or run.outputs.get("response", "") or run.outputs.get("answer", ""))
-        elif isinstance(run, dict) and "outputs" in run:
-            out_text = str(run["outputs"].get("output", "") or run["outputs"].get("response", "") or run["outputs"].get("answer", ""))
+        if isinstance(run_outputs, dict):
+            out_text = str(run_outputs.get("output", "") or run_outputs.get("response", "") or run_outputs.get("answer", ""))
 
         p_tokens = count_tokens(in_text) if in_text else 0
         c_tokens = count_tokens(out_text) if out_text else 0

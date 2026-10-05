@@ -9,6 +9,7 @@ import sys
 import shutil
 import re
 from pathlib import Path
+from typing import Optional, Any
 
 
 # ========== EARLY PYTHON ENVIRONMENT DIAGNOSTICS ==========
@@ -109,6 +110,13 @@ try:
     from packaging.version import Version
     EXTERNAL_IMPORTS_AVAILABLE = True
 except ImportError as e:
+    dotenv_values: Any = None
+    load_dotenv: Any = None
+    tomllib: Any = None
+    metadata: Any = None
+    Requirement: Any = None
+    SpecifierSet: Any = None
+    Version: Any = None
     EXTERNAL_IMPORTS_AVAILABLE = False
     IMPORT_ERROR = e
     print("=" * 70)
@@ -139,7 +147,7 @@ except ImportError as e:
     print()
 
 
-def summarize_value(key: str, value: str, example_value: str = None) -> str:
+def summarize_value(key: str, value: str, example_value: Optional[str] = None) -> str:
     """Return masked form for API keys, or full value for non-API keys.
 
     Args:
@@ -425,8 +433,11 @@ def doublecheck_env(file_path: str):
                     value = value[1:-1]
                 all_example_values[key] = value
 
+    if not EXTERNAL_IMPORTS_AVAILABLE or dotenv_values is None:
+        return (False, ["dotenv is not available"])
+
     # Parse the example file to get all keys
-    parsed = dotenv_values(file_path)
+    parsed = dotenv_values(file_path) or {}
     issues = []
 
     print("Environment Variables:")
@@ -454,8 +465,8 @@ def doublecheck_env(file_path: str):
 
     # Check for any additional uncommented variables in .env that weren't in example.env
     actual_env_file = ".env"
-    if os.path.exists(actual_env_file):
-        actual_env_vars = dotenv_values(actual_env_file)
+    if os.path.exists(actual_env_file) and dotenv_values is not None:
+        actual_env_vars = dotenv_values(actual_env_file) or {}
         additional_vars = set(actual_env_vars.keys()) - printed_keys
 
         if additional_vars:
@@ -540,6 +551,10 @@ def doublecheck_pkgs(pyproject_path="pyproject.toml", verbose=False):
     p = Path(pyproject_path)
     if not p.exists():
         print(f"ERROR: {pyproject_path} not found.")
+        return None
+
+    if not EXTERNAL_IMPORTS_AVAILABLE or tomllib is None or Version is None or SpecifierSet is None or Requirement is None or metadata is None:
+        print("Required packaging libraries not available.")
         return None
 
     # Load pyproject + python requirement
@@ -668,7 +683,8 @@ if __name__ == "__main__":
         check_env_conflicts(".env")
 
         # Load environment variables from .env file
-        load_dotenv()
+        if load_dotenv is not None:
+            load_dotenv()
 
     # Check environment variables and API keys
     doublecheck_env("example.env")

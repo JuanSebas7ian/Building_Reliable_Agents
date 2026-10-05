@@ -40,7 +40,12 @@ def main():
     print(f"Loaded {len(runs)} runs from {args.input}")
 
     # Calculate time shift so traces appear recent
-    latest = max(parse_dt(r["start_time"]) for r in runs if r["start_time"])
+    valid_dts = [parse_dt(r["start_time"]) for r in runs if r.get("start_time")]
+    clean_dts = [dt for dt in valid_dts if dt is not None]
+    if not clean_dts:
+        print("No valid timestamps found.")
+        return
+    latest = max(clean_dts)
     time_delta = datetime.now(timezone.utc).replace(tzinfo=None) - latest
     print(f"Shifting timestamps by: {time_delta}")
 
@@ -55,6 +60,8 @@ def main():
     # Group runs by trace and transform
     traces = defaultdict(list)
     for run in runs:
+        st = parse_dt(run.get("start_time"))
+        et = parse_dt(run.get("end_time"))
         traces[run["trace_id"]].append({
             "id": id_map[run["id"]],
             "parent_run_id": id_map.get(run["parent_run_id"]),
@@ -65,8 +72,8 @@ def main():
             "error": run.get("error"),
             "extra": run.get("extra"),
             "tags": run.get("tags"),
-            "start_time": parse_dt(run["start_time"]) + time_delta,
-            "end_time": parse_dt(run["end_time"]) + time_delta if run.get("end_time") else None,
+            "start_time": (st + time_delta) if st is not None else None,
+            "end_time": (et + time_delta) if et is not None else None,
         })
 
     client = Client()
@@ -91,7 +98,7 @@ def main():
                     extra=run.get("extra"),
                     tags=run.get("tags"),
                     project_name=args.project,
-                    client=client,
+                    client=client,  # pyright: ignore[reportCallIssue]
                 )
                 tree_map[run["id"]] = root_tree
             else:

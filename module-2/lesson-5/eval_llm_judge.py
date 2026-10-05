@@ -84,7 +84,7 @@ def helpfulness_and_tone_judge(run, example=None) -> dict:
             temperature=0.1,
         )
 
-        content = completion.choices[0].message.content.strip()
+        content = (completion.choices[0].message.content or "").strip()
 
         # Limpiar posibles bloques markdown ```json ... ``` devueltos por LLMs locales
         if content.startswith("```"):

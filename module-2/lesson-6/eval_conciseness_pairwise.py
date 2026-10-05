@@ -16,7 +16,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence
 from dotenv import load_dotenv
 from openai import OpenAI
 from langsmith import evaluate
@@ -62,25 +62,35 @@ Output your verdict as a single number ONLY:
 
 
 def conciseness_evaluator(
+    runs: Optional[Sequence[Any]] = None,
+    example: Optional[Any] = None,
+    *,
     inputs: Optional[Dict[str, Any]] = None,
     outputs: Optional[List[Dict[str, Any]]] = None,
-    runs: Optional[List[Any]] = None,
-    example: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Evaluador pareado de concisión para LangSmith y ejecuciones directas.
-    Compatible con la firma de DynamicComparisonRunEvaluator de LangSmith.
-
-    inputs: Diccionario con la entrada (ej. {"question": "..."})
-    outputs: Lista con [outputs_agente_a, outputs_agente_b]
-    runs: Lista opcional con los objetos Run de LangSmith para extraer sus IDs
+    Compatible con la firma de COMPARATIVE_EVALUATOR_T de LangSmith: (runs, example) -> dict.
     """
+    # Si se pasa un diccionario como primer argumento posicional (modo test directo)
+    if isinstance(runs, dict) and inputs is None:
+        inputs = runs
+        runs = None
+    if isinstance(example, list) and outputs is None:
+        outputs = example
+        example = None
+
     # 1. Extracción de inputs de forma defensiva
     question = ""
+    ex_inputs: Any = getattr(example, "inputs", None)
     if inputs and isinstance(inputs, dict):
-        question = inputs.get("question", "") or inputs.get("input", "")
-    elif example and hasattr(example, "inputs") and isinstance(example.inputs, dict):
-        question = example.inputs.get("question", "") or example.inputs.get("input", "")
+        question = str(inputs.get("question", "") or inputs.get("input", ""))
+    elif ex_inputs and isinstance(ex_inputs, dict):
+        question = str(ex_inputs.get("question", "") or ex_inputs.get("input", ""))
+    elif runs and len(runs) > 0:
+        r0_in: Any = getattr(runs[0], "inputs", {}) or {}
+        if isinstance(r0_in, dict):
+            question = str(r0_in.get("question", "") or r0_in.get("input", ""))
 
     # 2. Extracción de outputs de forma defensiva
     resp_a = "N/A"
@@ -88,13 +98,15 @@ def conciseness_evaluator(
     if outputs and len(outputs) >= 2:
         out_0 = outputs[0] if isinstance(outputs[0], dict) else {}
         out_1 = outputs[1] if isinstance(outputs[1], dict) else {}
-        resp_a = out_0.get("answer", "") or out_0.get("output", "") or out_0.get("response", "") or "N/A"
-        resp_b = out_1.get("answer", "") or out_1.get("output", "") or out_1.get("response", "") or "N/A"
+        resp_a = str(out_0.get("answer", "") or out_0.get("output", "") or out_0.get("response", "") or "N/A")
+        resp_b = str(out_1.get("answer", "") or out_1.get("output", "") or out_1.get("response", "") or "N/A")
     elif runs and len(runs) >= 2:
-        out_0 = getattr(runs[0], "outputs", {}) or {}
-        out_1 = getattr(runs[1], "outputs", {}) or {}
-        resp_a = out_0.get("answer", "") or out_0.get("output", "") or out_0.get("response", "") or "N/A"
-        resp_b = out_1.get("answer", "") or out_1.get("output", "") or out_1.get("response", "") or "N/A"
+        out_0: Any = getattr(runs[0], "outputs", {}) or {}
+        out_1: Any = getattr(runs[1], "outputs", {}) or {}
+        if isinstance(out_0, dict):
+            resp_a = str(out_0.get("answer", "") or out_0.get("output", "") or out_0.get("response", "") or "N/A")
+        if isinstance(out_1, dict):
+            resp_b = str(out_1.get("answer", "") or out_1.get("output", "") or out_1.get("response", "") or "N/A")
 
     # 3. Medición cuantitativa de tokens con token_utils
     metrics = token_utils.calculate_conciseness_metrics(resp_a, resp_b)
@@ -120,7 +132,7 @@ def conciseness_evaluator(
             temperature=0.0,
         )
 
-        content = response.choices[0].message.content.strip()
+        content = (response.choices[0].message.content or "").strip()
         match = re.search(r"[012]", content)
         preference = int(match.group(0)) if match else 0
     except Exception as e:

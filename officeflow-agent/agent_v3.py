@@ -3,7 +3,7 @@ import sqlite3
 import json
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 import numpy as np
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
@@ -292,18 +292,18 @@ def save_thread_history(thread_id: str, messages: list):
     thread_store[thread_id] = messages
 
 @traceable(name="Emma", metadata={"thread_id": thread_id})
-async def chat(question: str) -> str:
+async def chat(question: str) -> Dict[str, Any]:
     """Process a user question and return assistant response."""
     db_path = str(Path(__file__).parent / 'inventory' / 'inventory.db')
-    tools = [QUERY_DATABASE_TOOL, SEARCH_KNOWLEDGE_BASE_TOOL]
+    tools: List[Any] = [QUERY_DATABASE_TOOL, SEARCH_KNOWLEDGE_BASE_TOOL]
 
     # Fetch conversation history from local storage
     history_messages = get_thread_history(thread_id)
 
     # Build messages with history
-    messages = [
+    messages: List[Any] = [
         {"role": "system", "content": system_prompt}
-    ] + history_messages + [
+    ] + list(history_messages) + [
         {"role": "user", "content": question}
     ]
 
@@ -320,44 +320,51 @@ async def chat(question: str) -> str:
     # Handle tool calls if the model wants to use them
     while response_message.tool_calls:
         # Add assistant's tool call to messages
+        tool_calls_payload: List[Dict[str, Any]] = []
+        for tc in response_message.tool_calls:
+            tc_fn: Any = getattr(tc, "function", None)
+            tool_calls_payload.append({
+                "id": getattr(tc, "id", ""),
+                "type": getattr(tc, "type", "function"),
+                "function": {
+                    "name": getattr(tc_fn, "name", ""),
+                    "arguments": getattr(tc_fn, "arguments", "{}")
+                }
+            })
+
         messages.append({
             "role": "assistant",
             "content": response_message.content or "",
-            "tool_calls": [
-                {
-                    "id": tc.id,
-                    "type": tc.type,
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments
-                    }
-                }
-                for tc in response_message.tool_calls
-            ]
+            "tool_calls": tool_calls_payload
         })
 
         # Execute the tool call(s)
         for tool_call in response_message.tool_calls:
-            function_args = json.loads(tool_call.function.arguments)
+            tc_fn: Any = getattr(tool_call, "function", None)
+            if not tc_fn:
+                continue
+            fn_name = getattr(tc_fn, "name", "")
+            fn_args_str = getattr(tc_fn, "arguments", "{}")
+            function_args = json.loads(fn_args_str) if fn_args_str else {}
 
             # Handle different tool calls
-            if tool_call.function.name == "query_database":
+            if fn_name == "query_database":
                 result = query_database(
                     query=function_args.get("query"),
                     db_path=db_path
                 )
-            elif tool_call.function.name == "search_knowledge_base":
+            elif fn_name == "search_knowledge_base":
                 result = await search_knowledge_base(
                     query=function_args.get("query")
                 )
             else:
-                result = f"Error: Unknown tool {tool_call.function.name}"
+                result = f"Error: Unknown tool {fn_name}"
 
             # Add tool result to messages
             messages.append({
                 "role": "tool",
-                "tool_call_id": tool_call.id,
-                "name": tool_call.function.name,
+                "tool_call_id": getattr(tool_call, "id", ""),
+                "name": fn_name,
                 "content": result
             })
 
@@ -371,7 +378,7 @@ async def chat(question: str) -> str:
         response_message = response.choices[0].message
 
     # Add final response to messages
-    final_content = response_message.content
+    final_content = response_message.content or ""
     messages.append({
         "role": "assistant",
         "content": final_content
@@ -404,7 +411,7 @@ async def main():
             continue
 
         result = await chat(user_input)
-        response = result["output"]
+        response = result.get("output", "")
         print(f"\nAgent: {response}\n")
 
 if __name__ == "__main__":

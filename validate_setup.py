@@ -51,7 +51,8 @@ try:
         ],
         max_tokens=50
     )
-    respuesta = chat_res.choices[0].message.content.strip()
+    content = chat_res.choices[0].message.content or ""
+    respuesta = content.strip()
     print(f"   ✅ Chat Completion OK")
     print(f"   Respuesta del modelo: \"{respuesta}\"")
 except Exception as e:

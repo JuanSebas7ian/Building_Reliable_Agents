@@ -63,14 +63,14 @@ def upload_dataset():
         print(f"✅ Dataset creado exitosamente con ID: {dataset.id}")
 
         print(f"\n📤 Subiendo {total_rows} ejemplos...")
-        for idx, row in df.iterrows():
-            question = row.get("question", "")
+        for i, (_, row) in enumerate(df.iterrows(), start=1):
+            question = str(row.get("question", "") or "")
             client.create_example(
                 inputs={"question": question},
                 outputs={},
                 dataset_id=dataset.id
             )
-            print(f"   [{idx + 1}/{total_rows}] Subido: {question[:60]}...")
+            print(f"   [{i}/{total_rows}] Subido: {question[:60]}...")
 
         print(f"\n🎉 ¡Todos los {total_rows} ejemplos han sido cargados con éxito!")
 
