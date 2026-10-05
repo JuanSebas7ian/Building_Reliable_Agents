@@ -240,7 +240,7 @@ async def process_production_trace(trace: Dict[str, Any]) -> Dict[str, Any]:
 
     # 3. Enviar feedback a LangSmith si está configurado
     is_tracing = os.getenv("LANGSMITH_TRACING", "false").lower() == "true"
-    api_key = os.getenv("LANGSMITH_API_KEY", "")
+    api_key = os.getenv("LANGSMITH_API_KEY") or os.getenv("LANGCHAIN_API_KEY") or ""
 
     if is_tracing and api_key and not api_key.startswith("your_"):
         try:
