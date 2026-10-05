@@ -186,9 +186,10 @@ The course builds an iterative customer support agent (versions v0–v6) for Off
 
 ### Module 3: Moving Towards Production
 
-- **Lesson 1 — Moving Towards Production.** Transition from internal testing to real users, and learn the techniques needed to observe and evaluate at scale.
-- **Lesson 2 — Insights Agent.** Automatically analyze traces at scale to detect usage patterns and failure modes across hundreds of traces.
-- **Lesson 3 — Online Evals.** Automatically score every production trace as it comes in, giving you continuous signal on agent quality.
+- **Lesson 1 — Moving Towards Production.** Transition from internal testing to real users, capturing telemetry, metadata, and user feedback. ([Clase Magistral](module-3/lesson-1/CLASE_MAGISTRAL_LECCION_1.md) | [Código](module-3/lesson-1/production_telemetry.py))
+- **Lesson 2 — Insights Agent.** Automatically analyze traces at scale to detect usage patterns, latency percentiles, and failure clusters across hundreds of traces. ([Clase Magistral](module-3/lesson-2/CLASE_MAGISTRAL_LECCION_2.md) | [Código](module-3/lesson-2/insights_agent.py))
+- **Lesson 3 — Online Evals.** Automatically score every production trace in real-time streaming (deterministic guardrails and sampled LLM judges). ([Clase Magistral](module-3/lesson-3/CLASE_MAGISTRAL_LECCION_3.md) | [Código](module-3/lesson-3/online_evals.py))
+- **Lesson 4 — Automations & The Data Flywheel.** Event-driven reactive rules (alerts, auto-tagging, and automatic curation of failing traces into regression datasets). ([Clase Magistral](module-3/lesson-4/CLASE_MAGISTRAL_LECCION_4.md) | [Código](module-3/lesson-4/automations_pipeline.py))
 
 ## 📖 Related Resources
 
