@@ -17,6 +17,8 @@ except ImportError:
 from langsmith.run_trees import RunTree
 
 
+from pathlib import Path
+
 def parse_dt(s: str | None) -> datetime | None:
     if s is None:
         return None
@@ -29,15 +31,26 @@ def parse_dt(s: str | None) -> datetime | None:
 def main():
     import argparse
 
+    script_dir = Path(__file__).resolve().parent
+    default_input = script_dir / "synthetic_traces.json"
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default="default", help="Target project name")
-    parser.add_argument("--input", default="synthetic_traces.json", help="Input file path")
+    parser.add_argument("--input", default=str(default_input), help="Input file path")
     args = parser.parse_args()
 
-    with open(args.input) as f:
+    input_path = Path(args.input)
+    if not input_path.exists():
+        fallback = script_dir / args.input
+        if fallback.exists():
+            input_path = fallback
+        else:
+            raise FileNotFoundError(f"No such file or directory: '{args.input}'")
+
+    with open(input_path) as f:
         runs = json.load(f)
 
-    print(f"Loaded {len(runs)} runs from {args.input}")
+    print(f"Loaded {len(runs)} runs from {input_path}")
 
     # Calculate time shift so traces appear recent
     valid_dts = [parse_dt(r["start_time"]) for r in runs if r.get("start_time")]

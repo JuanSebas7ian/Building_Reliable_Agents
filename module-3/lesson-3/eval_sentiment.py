@@ -22,6 +22,7 @@ import os
 import sys
 import re
 import json
+import uuid
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -265,10 +266,16 @@ def log_sentiment_feedback_to_langsmith(
         return
 
     try:
+        # LangSmith requiere que run_id sea un UUID válido (RFC 4122)
+        try:
+            valid_uuid = str(uuid.UUID(str(run_id)))
+        except (ValueError, AttributeError):
+            valid_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(run_id)))
+
         # 1. Registrar sentimiento del cliente
         sentiment_score = 1.0 if sentiment_result["label"] == "POSITIVE" else (0.5 if sentiment_result["label"] == "NEUTRAL" else 0.0)
         ls_client.create_feedback(
-            run_id=run_id,
+            run_id=valid_uuid,
             key="customer_sentiment",
             score=sentiment_score,
             value=sentiment_result["label"],
@@ -277,13 +284,13 @@ def log_sentiment_feedback_to_langsmith(
 
         # 2. Registrar empatía del agente
         ls_client.create_feedback(
-            run_id=run_id,
+            run_id=valid_uuid,
             key="agent_empathy",
             score=empathy_result["score"],
             value=empathy_result["tone"],
             comment=empathy_result["reason"]
         )
-        print(f"    ☁️ [LANGSMITH SYNC] Feedback registrado exitosamente para la traza {run_id}.")
+        print(f"    ☁️ [LANGSMITH SYNC] Feedback registrado exitosamente para la traza {valid_uuid}.")
     except Exception as e:
         print(f"    ⚠️ [LANGSMITH SYNC] No se pudo enviar feedback a LangSmith: {e}")
 
@@ -372,6 +379,32 @@ def run_sentiment_eval_demo() -> None:
 
         # 3. Opcional: Publicar feedback a LangSmith
         log_sentiment_feedback_to_langsmith(run_id, sentiment, empathy, ls_client)
+
+    # 4. Si hay cliente LangSmith conectado, evaluar trazas reales del proyecto recién subido
+    if ls_client:
+        project_name = os.getenv("LANGSMITH_PROJECT", "lca-reliable-agents")
+        try:
+            print("\n" + "=" * 75)
+            print(f"📡 AUDITANDO TRAZAS REALES DEL PROYECTO LANGSMITH '{project_name}'...")
+            print("=" * 75)
+            real_runs = list(ls_client.list_runs(project_name=project_name, is_root=True, limit=3))
+            for r_run in real_runs:
+                q = ""
+                if r_run.inputs:
+                    q = str(r_run.inputs.get("question") or "")
+                resp = ""
+                if r_run.outputs:
+                    resp = str(r_run.outputs.get("output") or "")
+
+                if q and resp:
+                    print(f"\n⚡ AUDITANDO RUN REAL: [{r_run.id}]")
+                    print(f"👤 Cliente: \"{q[:80]}...\"")
+                    print(f"🤖 Agente:  \"{resp[:80]}...\"")
+                    s = eval_sentiment_heuristic(q)
+                    e = eval_agent_empathy_heuristic(s["label"], resp)
+                    log_sentiment_feedback_to_langsmith(str(r_run.id), s, e, ls_client)
+        except Exception as err:
+            print(f"  ⚠️ Nota: {err}")
 
     print("\n" + "=" * 75)
     print("🎯 CONCLUSIÓN DEL ANÁLISIS DE SENTIMIENTOS:")

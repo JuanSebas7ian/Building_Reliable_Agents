@@ -17,6 +17,7 @@ import asyncio
 import os
 import re
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -245,14 +246,19 @@ async def process_production_trace(trace: Dict[str, Any]) -> Dict[str, Any]:
     if is_tracing and api_key and not api_key.startswith("your_"):
         try:
             client = Client()
+            try:
+                valid_uuid = str(uuid.UUID(str(run_id)))
+            except (ValueError, AttributeError):
+                valid_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(run_id)))
+
             for key, res in eval_results.items():
                 client.create_feedback(
-                    run_id=run_id,
+                    run_id=valid_uuid,
                     key=f"online_{key}",
                     score=float(res["score"]),
                     comment=str(res.get("reason", ""))
                 )
-            print(f"  📡 4 calificaciones enviadas en tiempo real a LangSmith.")
+            print(f"  📡 4 calificaciones enviadas en tiempo real a LangSmith para la traza {valid_uuid}.")
         except Exception as e:
             print(f"  ⚠️ Error al emitir feedback en LangSmith: {e}")
     else:
